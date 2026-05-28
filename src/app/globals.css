@@ -1,24 +1,65 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-black: #111111;
-  --color-brand-gold: #E5B83B;
-  --color-brand-dark: #000000;
-  --color-brand-surface: rgba(255, 255, 255, 0.05);
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-card: var(--bg-card);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-border: var(--border);
 }
 
 @layer utilities {
   .glass {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--bg-card);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border);
+  }
+
+  .metallic-text {
+    background: linear-gradient(to right, #b8860b, #ffd700, #fff8dc, #ffd700, #b8860b);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: shine 4s linear infinite;
+  }
+
+  .metallic-bg {
+    background: linear-gradient(to right, #b8860b, #ffd700, #fff8dc, #ffd700, #b8860b);
+    background-size: 200% auto;
+    animation: shine 4s linear infinite;
+  }
+}
+
+@keyframes shine {
+  to {
+    background-position: 200% center;
   }
 }
 
 :root {
-  background-color: var(--color-brand-dark);
-  color: #f3f4f6;
+  /* Light Theme - White Background, Logo Accent */
+  --bg-primary: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.8);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --accent: #E5B83B;
+  --accent-hover: #d4a72c;
+  --border: rgba(0, 0, 0, 0.08);
+}
+
+.dark {
+  /* Dark Theme - Current Black Background */
+  --bg-primary: #000000;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --accent: #E5B83B;
+  --accent-hover: #fcd34d;
+  --border: rgba(255, 255, 255, 0.1);
 }
 
 body {
