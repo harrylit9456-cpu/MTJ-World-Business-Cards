@@ -67,7 +67,7 @@ export default async function ProfilePage(props: { params: Params }) {
         {/* Brand Logo Placeholder */}
         <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-accent/50 mb-6 shadow-xl shadow-accent/20 flex items-center justify-center bg-bg-primary transform transition duration-500 group-hover:scale-105 relative">
           {globalLogoUrl ? (
-            <Image src={globalLogoUrl} alt="Brand Logo" fill className="object-contain p-4" />
+            <Image src={globalLogoUrl} alt="Brand Logo" fill className="object-contain p-4" unoptimized={true} />
           ) : (
             <Gem size={48} className="text-accent" />
           )}
