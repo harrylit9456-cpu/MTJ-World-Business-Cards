@@ -8,6 +8,9 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-border: var(--border);
+  --color-brand-dark: #000000;
+  --color-brand-gold: #E5B83B;
+  --color-brand-blue: #3b82f6;
 }
 
 @layer utilities {

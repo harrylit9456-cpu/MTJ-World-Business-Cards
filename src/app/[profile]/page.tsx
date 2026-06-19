@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -5,6 +6,7 @@ import { Phone, Mail, UserPlus, Gem } from "lucide-react";
 import { FaLinkedin, FaInstagram, FaWhatsapp, FaFacebook, FaGlobe } from "react-icons/fa";
 import { notFound } from "next/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { cache } from "react";
 
 // Placeholder mock data to be used when not connected to Firebase or if the document is missing.
 const mockProfiles: Record<string, any> = {
@@ -23,12 +25,8 @@ const mockProfiles: Record<string, any> = {
 
 type Params = Promise<{ profile: string }>;
 
-export default async function ProfilePage(props: { params: Params }) {
-  const params = await props.params;
-  const { profile } = params;
+const getProfileData = cache(async (profile: string) => {
   let data = mockProfiles[profile.toLowerCase()];
-
-  // Attempt to fetch from Firestore if demo project config is updated
   let globalLogoUrl = null;
   try {
     // Only fetch if a real Firebase project ID is configured
@@ -48,6 +46,28 @@ export default async function ProfilePage(props: { params: Params }) {
   } catch (error) {
     console.warn("Firestore warning: Falling back to mock data.");
   }
+  return { data, globalLogoUrl };
+});
+
+export async function generateMetadata(props: { params: Params }): Promise<Metadata> {
+  const params = await props.params;
+  const { data, globalLogoUrl } = await getProfileData(params.profile);
+  
+  if (!data) {
+    return { title: "Profile Not Found" };
+  }
+
+  return {
+    title: data.name,
+    icons: globalLogoUrl ? { icon: globalLogoUrl } : undefined,
+  };
+}
+
+export default async function ProfilePage(props: { params: Params }) {
+  const params = await props.params;
+  const { profile } = params;
+  
+  const { data, globalLogoUrl } = await getProfileData(profile);
 
   if (!data) {
     notFound();

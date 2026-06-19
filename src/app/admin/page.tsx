@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { db, storage } from "@/lib/firebase";
 import { doc, getDoc, setDoc, collection, getDocs, deleteDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -41,8 +41,10 @@ export default function AdminDashboard() {
           setGlobalLogoUrl(docSnap.data().logoUrl);
         }
       }
-    } catch (e) {
-      console.error("Error fetching global settings:", e);
+    } catch (e: any) {
+      if (e.name !== 'AbortError' && e.code !== 'cancelled') {
+        console.error("Error fetching global settings:", e);
+      }
     }
   };
 
@@ -56,18 +58,37 @@ export default function AdminDashboard() {
         });
         setProfilesList(fetchedProfiles);
       }
-    } catch (error) {
-      console.error("Error fetching profiles: ", error);
+    } catch (error: any) {
+      if (error.name !== 'AbortError' && error.code !== 'cancelled') {
+        console.error("Error fetching profiles: ", error);
+      }
     }
   };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (isAuthenticated) {
+      // Defer the Firebase fetches to the next event loop.
+      // This prevents React 19/Next 15 from auto-aborting the internal fetch 
+      // requests if the component re-renders or strict-mode unmounts.
+      setTimeout(() => {
+        if (!isMounted) return;
+        fetchProfiles();
+        fetchGlobalSettings();
+      }, 100);
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isAuthenticated]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (passcode === "MTJ2026") {
       setIsAuthenticated(true);
       setMessage({ type: "", text: "" });
-      fetchProfiles();
-      fetchGlobalSettings();
     } else {
       setMessage({ type: "error", text: "Incorrect passcode." });
     }
@@ -181,7 +202,7 @@ export default function AdminDashboard() {
       <div className="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-brand-gold blur-[150px] opacity-10 pointer-events-none -z-10"></div>
       <div className="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-brand-gold blur-[150px] opacity-[0.05] pointer-events-none -z-10"></div>
 
-      <div className="w-full max-w-2xl glass rounded-3xl p-8 shadow-2xl border-white/10 my-4 z-10">
+      <div className="w-full max-w-2xl bg-white/5 backdrop-blur-3xl rounded-3xl p-8 shadow-2xl border border-white/10 my-4 z-10">
         <h1 className="text-3xl font-bold text-brand-gold mb-6 text-center">Admin Dashboard</h1>
 
         {message.text && (
@@ -191,24 +212,31 @@ export default function AdminDashboard() {
         )}
 
         {!isAuthenticated ? (
-          <form onSubmit={handleLogin} className="space-y-4 max-w-sm mx-auto">
+          <div className="space-y-4 max-w-sm mx-auto">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Admin Passcode</label>
+              <label className="block text-sm font-medium text-text-secondary mb-1">Admin Passcode</label>
               <input 
                 type="password" 
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleLogin(e as any);
+                  }
+                }}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-gold transition-colors"
                 placeholder="Enter passcode..."
               />
             </div>
             <button 
-              type="submit"
+              type="button"
+              onClick={handleLogin}
               className="w-full bg-brand-gold hover:bg-brand-gold/80 text-brand-dark font-bold py-3 rounded-xl transition-colors"
             >
               Enter Dashboard
             </button>
-          </form>
+          </div>
         ) : (
           <div className="space-y-8">
             
@@ -312,7 +340,7 @@ export default function AdminDashboard() {
       </div>
 
       {isAuthenticated && (
-        <div className="w-full max-w-2xl glass rounded-3xl p-8 shadow-2xl border-white/10 my-4 z-10">
+        <div className="w-full max-w-2xl bg-white/5 backdrop-blur-3xl rounded-3xl p-8 shadow-2xl border border-white/10 my-4 z-10">
           <h2 className="text-2xl font-bold text-white mb-6">Manage Profiles</h2>
           
           {profilesList.length === 0 ? (

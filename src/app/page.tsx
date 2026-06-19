@@ -1,15 +1,21 @@
+import Image from "next/image";
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-brand-dark relative overflow-hidden">
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-brand-blue blur-[120px] opacity-40"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-brand-gold blur-[120px] opacity-20"></div>
+    <div className="flex min-h-screen items-center justify-center bg-brand-dark p-8 relative overflow-hidden">
+      <div className="fixed top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-brand-blue blur-[150px] opacity-20 pointer-events-none -z-10"></div>
+      <div className="fixed bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-brand-gold blur-[150px] opacity-[0.15] pointer-events-none -z-10"></div>
 
-      <div className="z-10 text-center">
-        <h1 className="text-5xl font-bold text-brand-gold mb-4 tracking-tight">MTJ World</h1>
-        <p className="text-gray-400 max-w-md mx-auto text-lg">
-          Premium Digital Business Cards
-        </p>
+      <div className="text-center z-10">
+        <Image 
+          src="/logo.png" 
+          alt="MTJ World Logo" 
+          width={300} 
+          height={100} 
+          className="mx-auto object-contain drop-shadow-2xl"
+          priority
+        />
       </div>
-    </main>
+    </div>
   );
 }
