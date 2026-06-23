@@ -29,7 +29,6 @@ type Params = Promise<{ profile: string }>;
 
 const getProfileData = cache(async (profile: string) => {
   let data = mockProfiles[profile.toLowerCase()];
-  let globalLogoUrl = null;
   try {
     // Only fetch if a real Firebase project ID is configured
     if (db.app.options.projectId !== "demo-project") {
@@ -38,22 +37,16 @@ const getProfileData = cache(async (profile: string) => {
       if (docSnap.exists()) {
         data = docSnap.data();
       }
-
-      // Fetch global settings for the universal logo
-      const globalDocSnap = await getDoc(doc(db, "settings", "global"));
-      if (globalDocSnap.exists() && globalDocSnap.data().logoUrl) {
-        globalLogoUrl = globalDocSnap.data().logoUrl;
-      }
     }
   } catch (error) {
     console.warn("Firestore warning: Falling back to mock data.");
   }
-  return { data, globalLogoUrl };
+  return { data };
 });
 
 export async function generateMetadata(props: { params: Params }): Promise<Metadata> {
   const params = await props.params;
-  const { data, globalLogoUrl } = await getProfileData(params.profile);
+  const { data } = await getProfileData(params.profile);
   
   if (!data) {
     return { title: "Profile Not Found" };
@@ -61,7 +54,7 @@ export async function generateMetadata(props: { params: Params }): Promise<Metad
 
   return {
     title: data.name,
-    icons: (data.faviconUrl || data.logoUrl || globalLogoUrl) ? { icon: data.faviconUrl || data.logoUrl || globalLogoUrl } : undefined,
+    icons: (data.faviconUrl || data.logoUrl) ? { icon: data.faviconUrl || data.logoUrl } : undefined,
   };
 }
 
@@ -69,7 +62,7 @@ export default async function ProfilePage(props: { params: Params }) {
   const params = await props.params;
   const { profile } = params;
   
-  const { data, globalLogoUrl } = await getProfileData(profile);
+  const { data } = await getProfileData(profile);
 
   if (!data) {
     notFound();
@@ -88,8 +81,8 @@ export default async function ProfilePage(props: { params: Params }) {
         
         {/* Brand Logo Placeholder */}
         <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-accent/50 mb-6 shadow-xl shadow-accent/20 flex items-center justify-center bg-bg-primary transform transition duration-500 group-hover:scale-105 relative">
-          {data.logoUrl || globalLogoUrl ? (
-            <Image src={data.logoUrl || globalLogoUrl} alt="Brand Logo" fill className="object-contain p-4" unoptimized={true} />
+          {data.logoUrl ? (
+            <Image src={data.logoUrl} alt="Brand Logo" fill className="object-contain p-4" unoptimized={true} />
           ) : (
             <Gem size={48} className="text-accent" />
           )}
