@@ -17,7 +17,7 @@ export default function Home() {
             alt="MTJ World Logo" 
             width={280} 
             height={100} 
-            className="mx-auto object-contain drop-shadow-2xl"
+            className="mx-auto w-auto h-auto object-contain drop-shadow-2xl"
             priority
           />
         </div>

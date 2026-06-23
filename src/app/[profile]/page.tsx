@@ -8,6 +8,8 @@ import { notFound } from "next/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { cache } from "react";
 
+export const dynamic = 'force-dynamic';
+
 // Placeholder mock data to be used when not connected to Firebase or if the document is missing.
 const mockProfiles: Record<string, any> = {
   av: {
@@ -59,7 +61,7 @@ export async function generateMetadata(props: { params: Params }): Promise<Metad
 
   return {
     title: data.name,
-    icons: globalLogoUrl ? { icon: globalLogoUrl } : undefined,
+    icons: (data.faviconUrl || data.logoUrl || globalLogoUrl) ? { icon: data.faviconUrl || data.logoUrl || globalLogoUrl } : undefined,
   };
 }
 
@@ -86,8 +88,8 @@ export default async function ProfilePage(props: { params: Params }) {
         
         {/* Brand Logo Placeholder */}
         <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-accent/50 mb-6 shadow-xl shadow-accent/20 flex items-center justify-center bg-bg-primary transform transition duration-500 group-hover:scale-105 relative">
-          {globalLogoUrl ? (
-            <Image src={globalLogoUrl} alt="Brand Logo" fill className="object-contain p-4" unoptimized={true} />
+          {data.logoUrl || globalLogoUrl ? (
+            <Image src={data.logoUrl || globalLogoUrl} alt="Brand Logo" fill className="object-contain p-4" unoptimized={true} />
           ) : (
             <Gem size={48} className="text-accent" />
           )}
