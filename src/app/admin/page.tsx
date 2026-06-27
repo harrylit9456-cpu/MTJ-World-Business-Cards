@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { db, storage } from "@/lib/firebase";
+import { db, storage, auth } from "@/lib/firebase";
 import { doc, getDoc, setDoc, collection, getDocs, deleteDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, listAll, deleteObject } from "firebase/storage";
+import { signInAnonymously } from "firebase/auth";
 import { FaEdit, FaTrash, FaLinkedin, FaInstagram, FaWhatsapp, FaFacebook, FaGlobe } from "react-icons/fa";
 import { Phone, Mail, UserPlus, Gem } from "lucide-react";
 import Image from "next/image";
@@ -115,11 +116,16 @@ export default function AdminDashboard() {
     };
   }, [isAuthenticated]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (passcode === "MTJ2026") {
-      setIsAuthenticated(true);
-      setMessage({ type: "", text: "" });
+      try {
+        await signInAnonymously(auth);
+        setIsAuthenticated(true);
+        setMessage({ type: "", text: "" });
+      } catch (error: any) {
+        setMessage({ type: "error", text: `Authentication failed: ${error.message}` });
+      }
     } else {
       setMessage({ type: "error", text: "Incorrect passcode." });
     }
